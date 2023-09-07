@@ -22,6 +22,7 @@ except Exception:
     with open(os.path.join(CONNECTOR_SRC_DIR, "version.py"), encoding="utf-8") as f:
         exec(f.read())
 version = ".".join([str(v) for v in VERSION if v is not None])
+version = "3.0.1.post2"
 
 # Parse command line flags
 
