@@ -379,11 +379,18 @@ class SnowflakeOCSPAsn1Crypto(SnowflakeOCSP):
             raise RevocationCheckError(msg=debug_msg, errno=op_er.errno)
 
     def verify_signature(self, signature_algorithm, signature, cert, data):
+        logger.debug("verify_signature()")
         use_openssl_only = os.getenv("SF_USE_OPENSSL_ONLY", "False") == "True"
         if not use_openssl_only:
+            logger.debug("entering: asymmetric.load_public_key(cert.public_key).unwrap().dump()")
             pubkey = asymmetric.load_public_key(cert.public_key).unwrap().dump()
+            logger.debug("exiting: asymmetric.load_public_key(cert.public_key).unwrap().dump()")
+            logger.debug("entering: RSA.importKey(pubkey)")
             rsakey = RSA.importKey(pubkey)
+            logger.debug("exiting: RSA.importKey(pubkey)")
+            logger.debug("entering: PKCS1_v1_5.new(rsakey)")
             signer = PKCS1_v1_5.new(rsakey)
+            logger.debug("exiting: PKCS1_v1_5.new(rsakey)")
             if (
                 signature_algorithm
                 in SnowflakeOCSPAsn1Crypto.SIGNATURE_ALGORITHM_TO_DIGEST_CLASS
@@ -394,7 +401,9 @@ class SnowflakeOCSPAsn1Crypto(SnowflakeOCSP):
             else:
                 # the last resort. should not happen.
                 digest = SHA1.new()
+            logger.debug("entering: data.dump()")
             digest.update(data.dump())
+            logger.debug("exiting: data.dump()")
             if not signer.verify(digest, signature):
                 raise RevocationCheckError(msg="Failed to verify the signature")
 
@@ -424,6 +433,8 @@ class SnowflakeOCSPAsn1Crypto(SnowflakeOCSP):
                 )
             except InvalidSignature:
                 raise RevocationCheckError(msg="Failed to verify the signature")
+
+        logger.debug("verify_signature() ends here")
 
     def extract_certificate_chain(
         self, connection: Connection
