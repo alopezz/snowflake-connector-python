@@ -302,21 +302,21 @@ class SnowflakeOCSPAsn1Crypto(SnowflakeOCSP):
 
             cur_time = datetime.now(timezone.utc)
 
-            try:
-                """
-                Signature verification should happen before any kind of
-                validation
-                """
-                self.verify_signature(
-                    ocsp_cert.hash_algo,
-                    ocsp_cert.signature,
-                    issuer,
-                    ocsp_cert["tbs_certificate"],
-                )
-            except RevocationCheckError as rce:
-                raise RevocationCheckError(
-                    msg=rce.msg, errno=ER_OCSP_RESPONSE_ATTACHED_CERT_INVALID
-                )
+            # try:
+            #     """
+            #     Signature verification should happen before any kind of
+            #     validation
+            #     """
+            #     self.verify_signature(
+            #         ocsp_cert.hash_algo,
+            #         ocsp_cert.signature,
+            #         issuer,
+            #         ocsp_cert["tbs_certificate"],
+            #     )
+            # except RevocationCheckError as rce:
+            #     raise RevocationCheckError(
+            #         msg=rce.msg, errno=ER_OCSP_RESPONSE_ATTACHED_CERT_INVALID
+            #     )
             cert_valid, debug_msg = self.check_cert_time_validity(cur_time, ocsp_cert)
 
             if not cert_valid:
